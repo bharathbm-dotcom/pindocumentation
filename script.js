@@ -1,22 +1,32 @@
 fetch("data.yaml")
-  .then(response => response.text())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Failed to load data.yaml");
+    }
+    return response.text();
+  })
   .then(text => {
     const data = jsyaml.load(text);
 
-    document.getElementById("title").textContent = data.site.title;
-    document.getElementById("description").textContent = data.site.description;
+    // Populate site info
+    document.getElementById("site-title").textContent = data.site.title;
+    document.getElementById("site-description").textContent = data.site.description;
 
-    const contentDiv = document.getElementById("content");
+    // Populate pages
+    const pagesDiv = document.getElementById("pages");
 
-    data.sections.forEach(section => {
+    data.pages.forEach(page => {
       const h2 = document.createElement("h2");
-      h2.textContent = section.heading;
+      h2.textContent = page.title;
 
       const p = document.createElement("p");
-      p.textContent = section.content;
+      p.textContent = page.body;
 
-      contentDiv.appendChild(h2);
-      contentDiv.appendChild(p);
+      pagesDiv.appendChild(h2);
+      pagesDiv.appendChild(p);
     });
   })
-  .catch(err => console.error("Error loading YAML:", err));
+  .catch(error => {
+    document.body.innerHTML = "<h2>Error loading YAML</h2>";
+    console.error(error);
+  });
